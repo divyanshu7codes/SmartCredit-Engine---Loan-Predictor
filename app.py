@@ -22,7 +22,7 @@ from sklearn.metrics import (
 import joblib
 import os
 
-# ─────────────────────────── PAGE CONFIG ───────────────────────────
+# PAGE CONFIG
 st.set_page_config(
     page_title="Loan Approval Predictor — Loan Approval System",
     page_icon="🏦",
@@ -30,7 +30,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ─────────────────────────── CUSTOM CSS ────────────────────────────
+#CUSTOM CSS 
 st.markdown("""
 <style>
 /* ── Global Font & Background ── */
@@ -117,7 +117,7 @@ html, body, [class*="css"]  { font-family: 'Inter', sans-serif; }
 </style>
 """, unsafe_allow_html=True)
 
-# ─────────────────────────── DATA & MODEL ──────────────────────────
+#DATA & MODEL
 @st.cache_data
 def load_data():
     df = pd.read_csv("loan_approval_data.csv")
@@ -184,15 +184,12 @@ def train_models(df):
         }
     return results, scaler, ohe, le, X.columns.tolist(), data
 
-# ─────────────────────────── SIDEBAR ───────────────────────────────
+# SIDEBAR
 with st.sidebar:
     st.markdown("## 🏦 SmartCredit Engine")
     st.markdown("*Intelligent Loan Approval System*")
     st.markdown("---")
     page = st.radio("Navigation", [
-        # "🏠  Dashboard",
-        # "📊  Data Explorer",
-        # "🤖  Model Performance",
         "🔮  Predict Loan"
     ])
     st.markdown("---")
@@ -207,217 +204,10 @@ with st.sidebar:
 df = load_data()
 results, scaler, ohe, le, feature_cols, processed_df = train_models(df)
 
-# ════════════════════════════════════════
-#   PAGE 1 — DASHBOARD
-# ════════════════════════════════════════
-# if "Dashboard" in page:
-#     st.markdown("""
-#     <div class="hero-banner">
-#         <div style="font-size:3rem">🏦</div>
-#         <div>
-#             <h1>CreditWise Loan Approval System</h1>
-#             <p>AI-powered intelligent loan decision engine for SecureTrust Bank</p>
-#         </div>
-#     </div>
-#     """, unsafe_allow_html=True)
 
-#     # KPI Row
-#     approved_pct = round((df["Loan_Approved"].str.lower() == "yes").sum() / df["Loan_Approved"].notna().sum() * 100, 1)
-#     avg_income  = f"₹{df['Applicant_Income'].mean():,.0f}"
-#     avg_credit  = f"{df['Credit_Score'].mean():.0f}"
-#     avg_loan    = f"₹{df['Loan_Amount'].mean():,.0f}"
-#     best_model  = max(results, key=lambda k: results[k]["accuracy"])
-#     best_acc    = results[best_model]["accuracy"]
 
-#     c1, c2, c3, c4, c5 = st.columns(5)
-#     colors = ["#0f766e","#1e3a5f","#7c3aed","#d97706","#dc2626"]
-#     kpis = [
-#         (f"{df.shape[0]:,}", "Total Applicants"),
-#         (f"{approved_pct}%", "Approval Rate"),
-#         (avg_income, "Avg. Income"),
-#         (avg_credit, "Avg. Credit Score"),
-#         (f"{best_acc}%", "Best Model Accuracy"),
-#     ]
-#     for col, (val, lbl), clr in zip([c1,c2,c3,c4,c5], kpis, colors):
-#         col.markdown(f"""
-#         <div class="kpi-card" style="border-top-color:{clr}">
-#             <div class="val" style="color:{clr}">{val}</div>
-#             <div class="lbl">{lbl}</div>
-#         </div>""", unsafe_allow_html=True)
-
-#     st.markdown('<div class="section-header">📈 Key Distributions</div>', unsafe_allow_html=True)
-#     col1, col2 = st.columns(2)
-
-#     with col1:
-#         cnt = df["Loan_Approved"].value_counts()
-#         fig = px.pie(values=cnt.values, names=cnt.index,
-#                      color_discrete_sequence=["#10b981","#ef4444"],
-#                      title="Loan Approval Distribution",
-#                      hole=0.45)
-#         fig.update_layout(margin=dict(t=50,b=10,l=10,r=10), height=320)
-#         st.plotly_chart(fig, use_container_width=True)
-
-#     with col2:
-#         fig2 = px.histogram(df, x="Credit_Score", color="Loan_Approved",
-#                             nbins=25, barmode="overlay",
-#                             color_discrete_map={"Yes":"#10b981","No":"#ef4444"},
-#                             title="Credit Score vs Approval",
-#                             opacity=0.75)
-#         fig2.update_layout(margin=dict(t=50,b=10,l=10,r=10), height=320)
-#         st.plotly_chart(fig2, use_container_width=True)
-
-#     col3, col4 = st.columns(2)
-#     with col3:
-#         fig3 = px.box(df, x="Loan_Approved", y="Applicant_Income",
-#                       color="Loan_Approved",
-#                       color_discrete_map={"Yes":"#10b981","No":"#ef4444"},
-#                       title="Income vs Loan Approval")
-#         fig3.update_layout(showlegend=False, margin=dict(t=50,b=10,l=10,r=10), height=320)
-#         st.plotly_chart(fig3, use_container_width=True)
-
-#     with col4:
-#         purpose_cnt = df.groupby(["Loan_Purpose","Loan_Approved"]).size().reset_index(name="count")
-#         fig4 = px.bar(purpose_cnt, x="Loan_Purpose", y="count", color="Loan_Approved",
-#                       color_discrete_map={"Yes":"#10b981","No":"#ef4444"},
-#                       barmode="group", title="Loan Purpose vs Approval")
-#         fig4.update_layout(margin=dict(t=50,b=10,l=10,r=10), height=320)
-#         st.plotly_chart(fig4, use_container_width=True)
-
-# ════════════════════════════════════════
-#   PAGE 2 — DATA EXPLORER
-# ════════════════════════════════════════
-# elif "Data Explorer" in page:
-#     st.markdown("""
-#     <div class="hero-banner">
-#         <div style="font-size:3rem">📊</div>
-#         <div><h1>Data Explorer</h1>
-#         <p>Explore, filter and analyse the raw loan dataset</p></div>
-#     </div>""", unsafe_allow_html=True)
-
-#     tab1, tab2, tab3 = st.tabs(["🔍 Browse Data", "📉 Feature Analysis", "🔥 Correlation Heatmap"])
-
-#     with tab1:
-#         st.markdown('<div class="section-header">Filter Dataset</div>', unsafe_allow_html=True)
-#         f1, f2, f3 = st.columns(3)
-#         with f1:
-#             status_filter = st.multiselect("Approval Status", df["Loan_Approved"].dropna().unique(), default=df["Loan_Approved"].dropna().unique())
-#         with f2:
-#             area_filter = st.multiselect("Property Area", df["Property_Area"].dropna().unique(), default=df["Property_Area"].dropna().unique())
-#         with f3:
-#             emp_filter = st.multiselect("Employment", df["Employment_Status"].dropna().unique(), default=df["Employment_Status"].dropna().unique())
-
-#         filtered = df[
-#             df["Loan_Approved"].isin(status_filter) &
-#             df["Property_Area"].isin(area_filter) &
-#             df["Employment_Status"].isin(emp_filter)
-#         ]
-#         st.write(f"Showing **{len(filtered):,}** records")
-#         st.dataframe(filtered, use_container_width=True, height=400)
-
-#         col_a, col_b = st.columns(2)
-#         col_a.metric("Missing Values", df.isnull().sum().sum())
-#         col_b.metric("Filtered Records", len(filtered))
-
-#     with tab2:
-#         st.markdown('<div class="section-header">Univariate & Bivariate Analysis</div>', unsafe_allow_html=True)
-#         num_cols_list = ["Applicant_Income","Coapplicant_Income","Credit_Score","DTI_Ratio","Savings","Collateral_Value","Loan_Amount","Age"]
-#         cat_cols_list = ["Employment_Status","Marital_Status","Loan_Purpose","Property_Area","Education_Level","Gender","Employer_Category"]
-
-#         sel_type = st.radio("Analysis type", ["Numerical Distribution","Categorical Breakdown"], horizontal=True)
-#         if sel_type == "Numerical Distribution":
-#             sel_col = st.selectbox("Select column", num_cols_list)
-#             fig = px.histogram(df, x=sel_col, color="Loan_Approved",
-#                                color_discrete_map={"Yes":"#10b981","No":"#ef4444"},
-#                                marginal="box", nbins=30, opacity=0.8,
-#                                title=f"{sel_col} Distribution by Loan Approval")
-#             st.plotly_chart(fig, use_container_width=True)
-#         else:
-#             sel_cat = st.selectbox("Select column", cat_cols_list)
-#             grp = df.groupby([sel_cat,"Loan_Approved"]).size().reset_index(name="count")
-#             fig = px.bar(grp, x=sel_cat, y="count", color="Loan_Approved",
-#                          color_discrete_map={"Yes":"#10b981","No":"#ef4444"},
-#                          barmode="group", title=f"{sel_cat} vs Loan Approval")
-#             st.plotly_chart(fig, use_container_width=True)
-
-#     with tab3:
-#         num_data = processed_df.select_dtypes(include="number")
-#         corr = num_data.corr()
-#         fig_corr = px.imshow(corr, text_auto=".2f", aspect="auto",
-#                              color_continuous_scale="RdBu_r",
-#                              title="Correlation Matrix")
-#         fig_corr.update_layout(height=600)
-#         st.plotly_chart(fig_corr, use_container_width=True)
-
-# ════════════════════════════════════════
-#   PAGE 3 — MODEL PERFORMANCE
-# ════════════════════════════════════════
-# elif "Model Performance" in page:
-#     st.markdown("""
-#     <div class="hero-banner">
-#         <div style="font-size:3rem">🤖</div>
-#         <div><h1>Model Performance</h1>
-#         <p>Compare Logistic Regression, KNN and Naive Bayes models</p></div>
-#     </div>""", unsafe_allow_html=True)
-
-#     # Metrics comparison table
-#     st.markdown('<div class="section-header">📋 Model Comparison</div>', unsafe_allow_html=True)
-#     metrics_df = pd.DataFrame([
-#         {"Model": k, "Accuracy (%)": v["accuracy"], "Precision (%)": v["precision"],
-#          "Recall (%)": v["recall"], "F1 Score (%)": v["f1"],
-#          "ROC-AUC (%)": v["roc_auc"] or 0}
-#         for k, v in results.items()
-#     ]).set_index("Model")
-#     st.dataframe(metrics_df.style.highlight_max(axis=0, color="#d1fae5")
-#                                   .highlight_min(axis=0, color="#fee2e2")
-#                                   .format("{:.2f}"),
-#                  use_container_width=True)
-
-#     # Radar / Bar comparison
-#     col_l, col_r = st.columns(2)
-#     with col_l:
-#         fig_bar = go.Figure()
-#         metric_names = ["Accuracy (%)","Precision (%)","Recall (%)","F1 Score (%)"]
-#         colors_m = ["#1e3a5f","#0f766e","#7c3aed"]
-#         for (name, row), clr in zip(metrics_df.iterrows(), colors_m):
-#             fig_bar.add_trace(go.Bar(name=name, x=metric_names,
-#                                      y=[row[m] for m in metric_names],
-#                                      marker_color=clr))
-#         fig_bar.update_layout(barmode="group", title="Metrics Comparison",
-#                                yaxis_range=[60,100], height=360,
-#                                legend=dict(orientation="h", y=-0.25))
-#         st.plotly_chart(fig_bar, use_container_width=True)
-
-#     with col_r:
-#         # ROC Curves
-#         fig_roc = go.Figure()
-#         for (name, v), clr in zip(results.items(), colors_m):
-#             if v["fpr"] is not None:
-#                 fig_roc.add_trace(go.Scatter(x=v["fpr"], y=v["tpr"], mode="lines",
-#                                              name=f"{name} (AUC={v['roc_auc']}%)",
-#                                              line=dict(color=clr, width=2)))
-#         fig_roc.add_trace(go.Scatter(x=[0,1], y=[0,1], mode="lines",
-#                                      line=dict(dash="dash", color="gray"), showlegend=False))
-#         fig_roc.update_layout(title="ROC Curves", xaxis_title="False Positive Rate",
-#                                yaxis_title="True Positive Rate", height=360,
-#                                legend=dict(orientation="h", y=-0.3))
-#         st.plotly_chart(fig_roc, use_container_width=True)
-
-#     # Confusion Matrices
-#     st.markdown('<div class="section-header">🔢 Confusion Matrices</div>', unsafe_allow_html=True)
-#     cm_cols = st.columns(3)
-#     for idx, (name, v) in enumerate(results.items()):
-#         with cm_cols[idx]:
-#             cm = v["cm"]
-#             fig_cm = px.imshow(cm, text_auto=True,
-#                                x=["Rejected","Approved"], y=["Rejected","Approved"],
-#                                color_continuous_scale=["#fee2e2","#d1fae5"],
-#                                title=f"{name}")
-#             fig_cm.update_layout(height=280, margin=dict(t=50,b=10,l=10,r=10))
-#             st.plotly_chart(fig_cm, use_container_width=True)
-
-# ════════════════════════════════════════
 #   PAGE 4 — PREDICT LOAN
-# ════════════════════════════════════════
+
 if "Predict" in page:
     st.markdown("""
     <div class="hero-banner">
